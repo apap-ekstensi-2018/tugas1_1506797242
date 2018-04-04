@@ -17,4 +17,7 @@ import com.example.model.UniversitasModel;
 public interface ProgramStudiMapper {
 	@Select("select nama_prodi from program_studi where id = #{id_prodi}")
     ProgramStudiModel selectProdiNama (@Param("id_prodi") Integer id_prodi);
+	
+	@Select("select * from program_studi where id_fakultas = #{idFakultas}")
+    List<ProgramStudiModel> selectAllProdi (@Param("idFakultas") String idFakultas);
 }

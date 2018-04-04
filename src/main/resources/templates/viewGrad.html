@@ -56,33 +56,50 @@
 			<li><a href="#cari">Kelulusan Mahasiswa</a></li>
 			<li><a href="#cari">Cari Mahasiswa</a></li>
 		</ul>
-		<div class="container">
-		<table id="studentTable" class="display" style="width:100%">
-    		<tr>
-    			<td><h6>Tahun</h6></td>
-    			<td><h6 th:text="${tahun_masuk}"></h6></td>
-    		</tr>
-    		<tr>
-    			<td><h6>Program Studi</h6></td>
-    			<td><h6 th:text="${program_studi}"></h6></td>
-    		</tr>
-    		<tr>
-    			<td><h6>Fakultas</h6></td>
-    			<td><h6 th:text="${fakultas}"></h6></td>
-    		</tr>
-    		<tr>
-    			<td><h6>Universitas</h6></td>
-    			<td><h6 th:text="${universitas}"></h6></td>
-    		</tr>
-    		<tr>
-    			<td>
-		  		<h6 th:text="${presentaseKelulusan == null}? '0' + ' %' "></h6>
-				</td>
-    			<td>
-    			<h6 th:text="${jlhMahasiswa==null} ? '0' : ${jlhMahasiswa} + ' dari ' + ${totalMahasiwa} + ' Mahasiswa Telah Lulus'"></h6>
-    			</td>
-    		</tr>
-    	</table>
+			<div class="container">
+			<h2>Presentase Kelulusan</h2>
+			<div class="row">
+				<div class="col-sm-6">
+					<h4 style="font-weight: bold;">Tahun</h4>
+				</div>
+				<div class="col-sm-6">
+					<h4 th:text="${thn_masuk}"></h4>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-6">
+					<h4 style="font-weight: bold;">Program Studi</h4>
+				</div>
+				<div class="col-sm-6">
+					<h4 th:text="${prodi.nama_prodi}"></h4>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-6">
+					<h4 style="font-weight: bold;">Fakultas</h4>
+				</div>
+				<div class="col-sm-6">
+					<h4 th:text="${prodi.fakultas.nama_fakultas}"></h4>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-6">
+					<h4 style="font-weight: bold;">Universitas</h4>
+				</div>
+				<div class="col-sm-6">
+					<h4 th:text="${prodi.fakultas.universitas.nama_univ}">Program Studi</h4>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-6">
+					<h4 style="font-weight: bold;">Persentase</h4>
+				</div>
+				<div class="col-sm-6">
+					<h4 th:text="${persentase}+'%'"></h4>
+					<h4 th:text="${total_lulus}+' dari '+${jumlah_mahasiswa}+' Mahasiswa Telah Lulus'"></h4>
+				</div>
+			</div>
 		</div>
+</body>
 	</body>
 </html>

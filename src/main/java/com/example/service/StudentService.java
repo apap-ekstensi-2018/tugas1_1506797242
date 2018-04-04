@@ -32,5 +32,7 @@ public interface StudentService
     public Integer jumlahMhsLulus(String tahun_masuk, Integer id_prodi);
     
     public Integer totalMahasiswa(String tahun_masuk, Integer id_prodi);
+
+	List<StudentModel> selectAllStudentsByProdi(String idProdi);
     
 }

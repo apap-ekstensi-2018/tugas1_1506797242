@@ -45,7 +45,7 @@ public interface StudentMapper
     
     @Insert("INSERT INTO mahasiswa (npm, nama, tempat_lahir, tanggal_lahir, jenis_kelamin, agama, golongan_darah, status, tahun_masuk, jalur_masuk, id_prodi) "
     		+ "VALUES (#{npm}, #{nama}, #{tempat_lahir}, #{tanggal_lahir}, #{jenis_kelamin}, #{agama}, #{golongan_darah}, #{status}, #{tahun_masuk}, #{jalur_masuk}, #{id_prodi})")
-    void addStudent (@Param("student") StudentModel student);
+    void addStudent (StudentModel mahasiswa);
     
     @Delete("Delete from mahasiswa where npm = #{npm}")
     void deleteStudent (String npm);
@@ -87,4 +87,11 @@ public interface StudentMapper
    @Select("SELECT COUNT(mahasiswa.npm) as jlh_mahasiswa FROM mahasiswa WHERE "
    		+ "tahun_masuk = #{tahun_masuk} and id_prodi = #{id_prodi}")
    Integer totalMahasiswa(@Param("tahun_masuk") String tahun_masuk, @Param("id_prodi") Integer id_prodi);
+   
+   @Select("select * from mahasiswa where id_prodi = #{id_prodi}")
+   List<StudentModel> selectAllStudentsByProdi(@Param("id_prodi") String id_prodi);
+   
+   @Update("UPDATE mahasiswa SET npm = #{npm_baru} WHERE npm = #{npm_lama}")
+   void updateStudentNpm (@Param("npm_baru") String npm_baru, @Param("npm_lama") String npm_lama);
+
 }

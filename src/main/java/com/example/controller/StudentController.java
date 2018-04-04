@@ -16,9 +16,10 @@ import com.example.model.StudentModel;
 import com.example.model.ProgramStudiModel;
 import com.example.model.FakultasModel;
 import com.example.model.UniversitasModel;
-
+import com.example.service.FakultasService;
+import com.example.service.ProdiService;
 import com.example.service.StudentService;
-
+import com.example.service.UniversitasService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,8 +27,14 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 public class StudentController
 {
-    @Autowired
     StudentService studentDAO;
+    @Autowired
+    UniversitasService universitasDAO;
+    @Autowired
+    FakultasService fakultasDAO;
+    @Autowired
+    ProdiService prodiDAO;
+    
     @RequestMapping("/")
     public String index ()
     {
@@ -57,34 +64,37 @@ public class StudentController
     }
     
     @RequestMapping("/student/add/submit")
-    public String addSubmit (@ModelAttribute StudentModel student)
+    public String addSubmit (@ModelAttribute StudentModel mahasiswa)
     { 	
-    	ProgramStudiModel prodi = studentDAO.selectProdi(student.getId_prodi());
-    	String tahun_masuk = student.getTahun_masuk().substring(2);
+    	ProgramStudiModel prodi = studentDAO.selectProdi(mahasiswa.getId_prodi());
+    	String tahun_masuk = mahasiswa.getTahun_masuk().substring(2);
     	log.info("tahun_masuk " +tahun_masuk);
     	String kode_univ = prodi.getFakultas().getUniversitas().getKode_univ();
     	log.info("kode_univ " +kode_univ);
     	String kode_prodi = prodi.getKode_prodi();
     	log.info("kode_prodi " +kode_prodi);
-    	String jalur_masuk = jalurMasuk(student.getJalur_masuk());
-    	log.info("jalur_masuk " +student.getJalur_masuk());
+    	String jalur_masuk = jalurMasuk(mahasiswa.getJalur_masuk());
+    	log.info("jalur_masuk " +mahasiswa.getJalur_masuk());
     	log.info("id jalur_masuk " +jalur_masuk);
+
     	String npm_sementara = tahun_masuk + kode_univ + kode_prodi + jalur_masuk;
     	log.info("npm_sementara " +npm_sementara);
-    	String npm_akhir = "";
-    	String nomorUrut="";
+    	
     	String max_npm = studentDAO.selectNPM(npm_sementara);
-    	if (max_npm==null) {
-    		npm_akhir = npm_sementara + "001";
+    	log.info("max_npm " +max_npm);
+    	String nomor_urut = "001";
+    	if(max_npm != null) {
+    		nomor_urut = nomorUrut(max_npm);
+        	log.info("nomor_urut " +nomor_urut);	
     	}
-    	else {
-    		nomorUrut = nomorUrut(max_npm);
-    		npm_akhir = npm_sementara + nomorUrut;
-    	}
-    	log.info("npm " +npm_akhir);
-    	student.setNpm(npm_akhir);
-    	if(studentDAO.selectStudent(npm_akhir) == null) {
-    		studentDAO.addStudent(student);
+    	
+    	String npm = npm_sementara + nomor_urut;
+    	log.info("npm " +npm);
+    	
+    	mahasiswa.setNpm(npm);
+    	
+    	if(studentDAO.selectStudent(npm) == null) {
+    		studentDAO.addStudent (mahasiswa);
     		return "addSuccess";
     	}
     	else {
@@ -191,30 +201,111 @@ public class StudentController
 //        }
 //    }
         @RequestMapping("/graduation/view")
-        public String gradView(Model model,
-                @RequestParam(value = "tahun_masuk", required = false) String tahun_masuk,
-                @RequestParam(value = "id_prodi", required = false) Integer id_prodi)
-        {
-        	model.addAttribute("title", "Kelulusan Mahasiswa");
-        	ProgramStudiModel prodi = studentDAO.selectProdi(id_prodi);
-        	FakultasModel fakultas = studentDAO.selectFak(prodi.getId_fakultas());
-        	UniversitasModel universitas = studentDAO.selectUniv(fakultas.getId_univ());
-        	
-        	Integer jlhMhs = studentDAO.jumlahMhsLulus(tahun_masuk, id_prodi);
-        	Integer totalMhs = studentDAO.totalMahasiswa(tahun_masuk, id_prodi);
-        	String presentaseKelulusan = "0";
+    	public String viewLulus(Model model, @RequestParam(value="thn_masuk", required=true)String thn_masuk,
+				 @RequestParam(value="id_prodi", required=true)int id_prodi) {
+          Integer jumlah_mahasiswa = studentDAO.totalMahasiswa(thn_masuk, id_prodi);
+          if(jumlah_mahasiswa != 0) {
+        	  Integer total_lulus = studentDAO.jumlahMhsLulus(thn_masuk, id_prodi);
+        	  Integer persentase = (total_lulus * 100) / jumlah_mahasiswa;
+        	  log.info("test");
+        	  ProgramStudiModel prodi = studentDAO.selectProdi(id_prodi);
 
-    		if (totalMhs > 0) {
-    			presentaseKelulusan = String.format("%.2f", ((float)jlhMhs/(float)totalMhs) * 100);
-    		}
-        	model.addAttribute("tahun_masuk", tahun_masuk);
-        	model.addAttribute("program_studi", prodi.getNama_prodi());
-        	model.addAttribute("fakultas", fakultas.getNama_fakultas());
-        	model.addAttribute("universitas", universitas.getNama_univ());
-        	model.addAttribute("jlhMahasiswa", jlhMhs);
-        	model.addAttribute("totalMahasiwa", totalMhs);
-        	model.addAttribute("persen", presentaseKelulusan);
-        	return "viewGrad";
-        }
+        	  model.addAttribute ("prodi", prodi);
+        	  model.addAttribute ("persentase", persentase);
+        	  model.addAttribute ("total_lulus", total_lulus);
+          	  model.addAttribute ("jumlah_mahasiswa", jumlah_mahasiswa);
+          	  model.addAttribute ("thn_masuk", thn_masuk);
+              return "viewGrad";
+      	}else {
+      		return "not-found";
+      	}	
+  	}
+        @RequestMapping("/mahasiswa/cariUniv")
+    	public String cariMahasiswa(Model model)
+        {
+        	log.info("start cari mahasiswa");
+        	List<UniversitasModel> allUniversitas = universitasDAO.selectAllUniversitas();	
+        	model.addAttribute("allUniversitas", allUniversitas);
+    		return "search-universitas";
+    	}
+        
+        @RequestMapping("/mahasiswa/cariFakultas")
+      	public String cariBasedUniversitas(Model model, @RequestParam(value = "universitas", required = false) String idUniversitas)
+        {
+          	List<UniversitasModel> allUniversitas = universitasDAO.selectAllUniversitas();
+          	for(UniversitasModel universitasSelected: allUniversitas) {
+          		if (universitasSelected.getId().equals(idUniversitas)){
+          			model.addAttribute("universitasSelected", universitasSelected);
+          		}
+          	}
+          	model.addAttribute("idUniversitas", idUniversitas);
+          	
+          	List<FakultasModel> allFakultas = fakultasDAO.selectAllFakultas(idUniversitas);
+          	model.addAttribute("allFakultas", allFakultas);
+    		return "search-fakultas";
+      	}
+        
+        @RequestMapping("/mahasiswa/cariProdi")
+      	public String cariBasedFakultas(Model model, 
+      				@RequestParam(value = "universitas", required = false) String idUniversitas,
+      				@RequestParam(value = "fakultas", required = false) String idFakultas)
+          {
+          	List<UniversitasModel> allUniversitas = universitasDAO.selectAllUniversitas();
+          	for(UniversitasModel universitasSelected: allUniversitas) {
+          		if (universitasSelected.getId().equals(idUniversitas)){
+          			model.addAttribute("universitasSelected", universitasSelected);
+          		}
+          	}
+          	model.addAttribute("idUniversitas", idUniversitas);
+          	
+          	List<FakultasModel> allFakultas = fakultasDAO.selectAllFakultas(idUniversitas);
+          	for(FakultasModel fakultasSelected: allFakultas) {
+          		if (fakultasSelected.getId().equals(idFakultas)){
+          			model.addAttribute("fakultasSelected", fakultasSelected);
+          		}
+          	}
+          	model.addAttribute("idFakultas", idFakultas);
+          	
+          	List<ProgramStudiModel> allProdi = prodiDAO.selectAllProdi(idFakultas);
+          	model.addAttribute("allProdi", allProdi);
+    		return "search-prodi";
+      	}
+        
+        @RequestMapping("/mahasiswa/cari")
+      	public String cariMahasiswa(Model model, 
+      				@RequestParam(value = "universitas", required = false) String idUniversitas,
+      				@RequestParam(value = "fakultas", required = false) String idFakultas,
+      				@RequestParam(value = "prodi", required = false) String idProdi)
+          {
+        	List<UniversitasModel> allUniversitas = universitasDAO.selectAllUniversitas();
+          	for(UniversitasModel universitasSelected: allUniversitas) {
+          		if (universitasSelected.getId().equals(idUniversitas)){
+          			model.addAttribute("universitasSelected", universitasSelected);
+          		}
+          	}
+          	model.addAttribute("idUniversitas", idUniversitas);
+          	
+          	List<FakultasModel> allFakultas = fakultasDAO.selectAllFakultas(idUniversitas);
+          	for(FakultasModel fakultasSelected: allFakultas) {
+          		if (fakultasSelected.getId().equals(idFakultas)){
+          			model.addAttribute("fakultasSelected", fakultasSelected);
+          		}
+          	}
+          	model.addAttribute("idFakultas", idFakultas);
+          	
+          	List<ProgramStudiModel> allProdi = prodiDAO.selectAllProdi(idFakultas);
+          	for(ProgramStudiModel prodiSelected: allProdi) {
+          		if (prodiSelected.getId().equals(idProdi)){
+          			model.addAttribute("prodiSelected", prodiSelected);
+          		}
+          	}
+          	model.addAttribute("idProdi", idProdi);
+          	
+          	List<StudentModel> mahasiswa = studentDAO.selectAllStudentsByProdi(idProdi);
+          	String size = String.valueOf(mahasiswa.size());
+          	log.info("size "+size);
+          	model.addAttribute("mahasiswa", mahasiswa);
+    		return "search-mahasiswa";
+      	}
  
 }

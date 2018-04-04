@@ -23,7 +23,12 @@ public class StudentServiceDatabase implements StudentService
     private ProgramStudiMapper prodiMapper;
     
 
-    @Override
+    public StudentServiceDatabase(StudentMapper studentMapper2) {
+		// TODO Auto-generated constructor stub
+	}
+
+
+	@Override
     public StudentModel selectStudent (String npm)
     {
         log.info ("select student with npm {}", npm);
@@ -112,5 +117,13 @@ public class StudentServiceDatabase implements StudentService
 		// TODO Auto-generated method stub
 		log.info("select count() seluruh mahasiwa");
 		return studentMapper.totalMahasiswa(tahun_masuk, id_prodi);
+	}
+
+
+	@Override
+	public List<StudentModel> selectAllStudentsByProdi(String idProdi) {
+		// TODO Auto-generated method stub
+	 	log.info("select student with id_prodi " +idProdi);
+    	return studentMapper.selectAllStudentsByProdi(idProdi);
 	}
 }

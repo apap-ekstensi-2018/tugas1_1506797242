@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UniversitasModel {
-	private int id;
+	private String id;
 	private String kode_univ;
 	private String nama_univ;
 }
