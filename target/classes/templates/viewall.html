@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<title>View All Student</title>
+		<link rel="stylesheet" href="/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></link>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+		<style>
+			ul {
+    			list-style-type: none;
+    			margin: 0;
+    			padding: 0;
+    			overflow: hidden;
+    			background-color: #333;
+			}
+
+			li {
+    			float: left;
+			}
+
+			li a {
+    			display: block;
+    			color: white;
+    			text-align: center;
+    			padding: 14px 16px;
+    			text-decoration: none;
+			}
+
+			li a:hover {
+    			background-color: #111;
+			}
+			
+			.button {
+				background-color: red;
+				font-size: 20px;
+				color: white;
+				margin: 2px 700px;
+				border-radius: 10px;
+			}
+			.button1 {
+				background-color: green;
+				font-size: 20px;
+				color: white;
+				margin: 2px 700px;
+				border-radius: 10px;
+			}
+		</style>
+		
+	</head>
+	<body>
+		<ul>
+			<li><a href="home.html">SI Kemahasiswaan</a></li>
+  			<li><a class="active" href="home.html">Home</a></li>
+  			<li><a href="addStudent.html">Tambah Mahasiswa</a></li>
+			<li><a href="viewGrad.html">Kelulusan Mahasiswa</a></li>
+			<li><a href="searchStudent.html">Cari Mahasiswa</a></li>
+		</ul>
+		<div class="container">
+			<h3>Data Mahasiswa Program Studi</h3>
+	
+		</div>
+		<div class="container" style="margin-left:120px;margin-right:120px;">
+			<table id="student-table" class="stripe" style="width:100%">
+	        <thead>
+	            <tr>
+	                <th>No.</th>
+	                <th>NPM</th>
+	                <th>Nama</th>
+	                <th>Program Studi</th>
+	                <th>Tahun Masuk</th>
+	                <th>Jalur Masuk</th>
+	                <th>Detail Mahasiswa</th>
+	            </tr>
+	        </thead>
+	        <tbody>
+	        	<tr th:each="student, iterationStatus: ${students}" th:class="${iterationStatus.odd} ? 'odd'">
+	        		<td th:text="${iterationStatus.count}"></td>
+	        		<td th:text="${student.npm}"></td>
+	        		<td th:text="${student.nama}"></td>
+					<td th:text="${student.id_prodi}"></td>
+					<td th:text="${student.tahun_masuk}"></td>
+					<td th:text="${student.jalur_masuk}"></td>
+	        		<td>
+	        			<a th:href="'/student/viewStudent/' + ${student.npm}" > Lihat detail</a>
+	        		</td>
+	        	</tr>
+	        </tbody>
+	    </table>
+    </div>
+    
+    
+    </body>
+</html>
+<script th:inline="javascript">
+$(document).ready(function() {
+	$('#student-table').DataTable();
+} );
+</script>
